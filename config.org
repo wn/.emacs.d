@@ -116,12 +116,10 @@ is already narrowed."
   #+END_SRC
 
 * Themes
-
   #+BEGIN_SRC emacs-lisp :tangle yes
 (require 'overcast-theme)
 (load-theme 'overcast t)
   #+END_SRC
-
 * MacOS
 (use-package exec-path-from-shell
   :ensure t
