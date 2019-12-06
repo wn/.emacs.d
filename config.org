@@ -9,7 +9,7 @@
 (setq custom-file "~/.emacs.d/custom.el")
   #+END_SRC
 
-  Custom key bindings
+  Custom key remapping
   #+BEGIN_SRC emacs-lisp :tangle yes 
 ;; Swap for Dvorak layout
 (keyboard-translate ?\C-x ?\C-u)
@@ -20,14 +20,16 @@
 
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "S-k") 'kill-buffer-and-window)
+(global-set-key (kbd "C-0") 'delete-window)
+
+(setq save-interprogram-paste-before-kill t)
   #+END_SRC
 
   Remap aliases
   #+BEGIN_SRC emacs-lisp :tangle yes 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (defalias 'list-buffers 'ibuffer)
-  #+END_SRC
-
+#+END_SRC
 * Coding enhancement
   #+BEGIN_SRC emacs-lisp :tangle yes 
 (show-paren-mode 1)
@@ -58,12 +60,14 @@
 (define-key ac-completing-map "\r" nil)
 
 (use-package yasnippet
-  :ensure t
-  :init
-  (yas-global-mode 1))
-(add-to-list 'load-path
-              "~/.emacs.d/plugins/yasnippet")
+:ensure t
+:init
+(yas-global-mode 1))
+(require 'yasnippet)
 
+(use-package yasnippet-snippets
+ :ensure t)
+    
 (use-package flycheck
   :ensure t
   :init
@@ -114,7 +118,6 @@ is already narrowed."
             (define-key LaTeX-mode-map "\C-xn"
               nil)))
   #+END_SRC
-
 * Themes
   #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package overcast-theme
@@ -145,50 +148,67 @@ is already narrowed."
   (global-set-key [C-S-tab] 'previous-buffer)
 
 (use-package ace-window
-:ensure t
-:init
-(progn
-(setq aw-scope 'global) ;; was frame
-(global-set-key (kbd "C-x O") 'other-frame)
+  :ensure t
+  :bind (("C-o" . ace-window))
+  :init
+  (progn
+  (setq aw-scope 'global) ;; was frame
+  (global-set-key (kbd "C-o") 'other-frame)
   (global-set-key [remap other-window] 'ace-window)
   (custom-set-faces
    '(aw-leading-char-face
      ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
   ))
+
+(defun split-and-follow-horizontally ()
+  (interactive)
+  (split-window-below)
+  (balance-windows)
+  (other-window 1))
+(global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+
+(defun split-and-follow-vertically ()
+  (interactive)
+  (split-window-right)
+  (balance-windows)
+  (other-window 1))
+(global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
   #+END_SRC
-* Swiper
+
+* Swiper/Ivy/Counsel
   #+BEGIN_SRC emacs-lisp :tangle yes
 ;; it looks like counsel is a requirement for swiper
 (use-package counsel
   :ensure t
-  )
+  :bind
+  (("C-y" . counsel-yank-pop)
+    :map ivy-minibuffer-map
+    ("C-y" . ivy-next-line)))
+    
+(use-package ivy
+  :ensure t
+  :diminish (ivy-mode)
+  :bind (("C-x b" . ivy-switch-buffer))
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "%d/%d ")
+  (setq ivy-display-style 'fancy))
 
 (use-package swiper
-  :ensure try
+  :ensure t
+  :bind (("C-s" . swiper-isearch)
+	 ("C-r" . swiper-isearch)
+	 ("C-c C-r" . ivy-resume)
+	 ("M-x" . counsel-M-x)
+	 ("C-x C-f" . counsel-find-file))
   :config
   (progn
     (ivy-mode 1)
     (setq ivy-use-virtual-buffers t)
-    (global-set-key "\C-s" 'swiper)
-    (global-set-key (kbd "C-c C-r") 'ivy-resume)
-    (global-set-key (kbd "<f6>") 'ivy-resume)
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-    (global-set-key (kbd "<f1> l") 'counsel-load-library)
-    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-    (global-set-key (kbd "C-c g") 'counsel-git)
-    (global-set-key (kbd "C-c j") 'counsel-git-grep)
-    (global-set-key (kbd "C-c k") 'counsel-ag)
-    (global-set-key (kbd "C-x l") 'counsel-locate)
-    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+    (setq ivy-display-style 'fancy)
     (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
     ))
-
-(define-key ivy-minibuffer-map (kbd "<ESC>") 'minibuffer-keyboard-quit)
-(define-key swiper-map (kbd "<ESC>") 'minibuffer-keyboard-quit)
   #+END_SRC
 
 * Misc.
