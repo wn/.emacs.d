@@ -54,6 +54,8 @@
     (ac-config-default)
     (global-auto-complete-mode t)
     ))
+(define-key ac-completing-map [return] nil)
+(define-key ac-completing-map "\r" nil)
 
 (use-package yasnippet
   :ensure t
@@ -67,13 +69,50 @@
   :init
   (global-flycheck-mode t))
 
-; expand the marked region in semantic increments (negative prefix to reduce region)
+;; expand the marked region in semantic increments (negative prefix to reduce region)
 (use-package expand-region
   :ensure t
   :config
   (global-set-key (kbd "C-=") 'er/expand-region))
 
-(usepa
+;; C-; Edit all words with the highlighted word.
+(use-package iedit
+  :ensure t)
+
+(defun narrow-or-widen-dwim (p)
+  "Widen if buffer is narrowed, narrow-dwim otherwise.
+Dwim means: region, org-src-block, org-subtree, or
+defun, whichever applies first. Narrowing to
+org-src-block actually calls `org-edit-src-code'.
+
+With prefix P, don't widen, just narrow even if buffer
+is already narrowed."
+  (interactive "P")
+  (declare (interactive-only))
+  (cond ((and (buffer-narrowed-p) (not p)) (widen))
+        ((region-active-p)
+         (narrow-to-region (region-beginning)
+                           (region-end)))
+        ((derived-mode-p 'org-mode)
+         ;; `org-edit-src-code' is not a real narrowing
+         ;; command. Remove this first conditional if
+         ;; you don't want it.
+         (cond ((ignore-errors (org-edit-src-code) t)
+                (delete-other-windows))
+               ((ignore-errors (org-narrow-to-block) t))
+               (t (org-narrow-to-subtree))))
+        ((derived-mode-p 'latex-mode)
+         (LaTeX-narrow-to-environment))
+        (t (narrow-to-defun))))
+
+;; This line actually replaces Emacs' entire narrowing
+;; keymap, that's how much I like this command. Only
+;; copy it if that's what you want.
+(define-key ctl-x-map "n" #'narrow-or-widen-dwim)
+(add-hook 'LaTeX-mode-hook
+          (lambda ()
+            (define-key LaTeX-mode-map "\C-xn"
+              nil)))
   #+END_SRC
 
 * Themes
@@ -102,15 +141,18 @@
 
 * Windows
   #+BEGIN_SRC emacs-lisp :tangle yes 
+  (global-set-key [C-tab] 'next-buffer)
+  (global-set-key [C-S-tab] 'previous-buffer)
+
 (use-package ace-window
-  :ensure t
-  :init
-  (progn
-  (global-set-key [remap other-window] 'ace-window)
-  (custom-set-faces
-    '(aw-leading-char-face
-    ((t (:inherit ace-jump-face-foreground :height 3.0)))))
-  ))
+:ensure t
+:init
+(progn
+(global-set-key [remap other-window] 'ace-window)
+(custom-set-faces
+'(aw-leading-char-face
+((t (:inherit ace-jump-face-foreground :height 3.0)))))
+))
   #+END_SRC
 
 * Swiper
