@@ -1,0 +1,6 @@
+*
+
+!.gitignore
+!plugins/*
+!config.el
+!init.el
