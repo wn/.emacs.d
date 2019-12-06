@@ -1,0 +1,204 @@
+#+TITLE: emacs config
+
+* Preference
+  STFU
+  #+BEGIN_SRC emacs-lisp :tangle yes 
+(setq visible-bell t)
+(setq ring-bell-function 'ignore)
+(put 'downcase-region 'disabled nil)
+(setq custom-file "~/.emacs.d/custom.el")
+  #+END_SRC
+
+  Custom key bindings
+  #+BEGIN_SRC emacs-lisp :tangle yes 
+;; Swap for Dvorak layout
+(keyboard-translate ?\C-x ?\C-u)
+(keyboard-translate ?\C-u ?\C-x)
+
+(when (require 'redo nil 'noerror)
+    (global-set-key (kbd "C-S-z") 'redo))
+
+(global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "S-k") 'kill-buffer-and-window)
+  #+END_SRC
+
+  Remap aliases
+  #+BEGIN_SRC emacs-lisp :tangle yes 
+(defalias 'yes-or-no-p 'y-or-n-p)
+(defalias 'list-buffers 'ibuffer)
+  #+END_SRC
+
+* Coding enhancement
+  #+BEGIN_SRC emacs-lisp :tangle yes 
+(show-paren-mode 1)
+(delete-selection-mode 1)
+
+; deletes all the whitespace when you hit backspace or delete
+(use-package hungry-delete
+  :ensure t
+  :config
+  (global-hungry-delete-mode))
+
+;; Cursor
+(blink-cursor-mode 0)
+(setq-default cursor-type 'bar)
+
+(global-hl-line-mode t)
+(when (version<= "26.0.50" emacs-version )
+  (global-display-line-numbers-mode))
+
+(use-package auto-complete
+  :ensure t
+  :init
+  (progn
+    (ac-config-default)
+    (global-auto-complete-mode t)
+    ))
+
+(use-package yasnippet
+  :ensure t
+  :init
+  (yas-global-mode 1))
+(add-to-list 'load-path
+              "~/.emacs.d/plugins/yasnippet")
+
+(use-package flycheck
+  :ensure t
+  :init
+  (global-flycheck-mode t))
+
+; expand the marked region in semantic increments (negative prefix to reduce region)
+(use-package expand-region
+  :ensure t
+  :config
+  (global-set-key (kbd "C-=") 'er/expand-region))
+
+(usepa
+  #+END_SRC
+
+* Themes
+
+  #+BEGIN_SRC emacs-lisp :tangle yes
+(require 'overcast-theme)
+(load-theme 'overcast t)
+  #+END_SRC
+
+* MacOS
+(use-package exec-path-from-shell
+  :ensure t
+  :if (memq window-system '(mac ns x))
+  :config
+  (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+  (exec-path-from-shell-initialize))
+#+END_SRC
+
+* Org mode config
+  #+BEGIN_SRC emacs-lisp :tangle yes 
+(use-package org-bullets
+  :ensure t
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+  #+END_SRC
+
+* Windows
+  #+BEGIN_SRC emacs-lisp :tangle yes 
+(use-package ace-window
+  :ensure t
+  :init
+  (progn
+  (global-set-key [remap other-window] 'ace-window)
+  (custom-set-faces
+    '(aw-leading-char-face
+    ((t (:inherit ace-jump-face-foreground :height 3.0)))))
+  ))
+  #+END_SRC
+
+* Swiper
+  #+BEGIN_SRC emacs-lisp :tangle yes
+;; it looks like counsel is a requirement for swiper
+(use-package counsel
+  :ensure t
+  )
+
+(use-package swiper
+  :ensure try
+  :config
+  (progn
+    (ivy-mode 1)
+    (setq ivy-use-virtual-buffers t)
+    (global-set-key "\C-s" 'swiper)
+    (global-set-key (kbd "C-c C-r") 'ivy-resume)
+    (global-set-key (kbd "<f6>") 'ivy-resume)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+    (global-set-key (kbd "<f1> l") 'counsel-load-library)
+    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+    (global-set-key (kbd "C-c g") 'counsel-git)
+    (global-set-key (kbd "C-c j") 'counsel-git-grep)
+    (global-set-key (kbd "C-c k") 'counsel-ag)
+    (global-set-key (kbd "C-x l") 'counsel-locate)
+    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+    (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
+    ))
+
+(define-key ivy-minibuffer-map (kbd "<ESC>") 'minibuffer-keyboard-quit)
+(define-key swiper-map (kbd "<ESC>") 'minibuffer-keyboard-quit)
+  #+END_SRC
+
+* Misc.
+  #+BEGIN_SRC emacs-lisp :tangle yes 
+;; Used to try out custom packages on MELPA.
+;; M-x try <package_name>
+(use-package try
+  :ensure t)
+
+;; Displays the key bindings following currently entered incomplete command
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode))
+
+(defun prepare-scratch-for-kill ()
+  (save-excursion
+    (set-buffer (get-buffer-create "*scratch*"))
+    (add-hook 'kill-buffer-query-functions 'kill-scratch-buffer t)))
+
+(defun kill-scratch-buffer ()
+  (let (kill-buffer-query-functions)
+    (kill-buffer (current-buffer)))
+  ;; no way, *scratch* shall live
+  (prepare-scratch-for-kill)
+  ;; Since we "killed" it, don't let caller try too
+  nil)
+
+(prepare-scratch-for-kill)
+  #+END_SRC
+* Python
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq python-shell-interpreter "python3")
+(setq flycheck-python-pycompile-executable "python3"
+      flycheck-python-pylint-executable "python3"
+      flycheck-python-flake8-executable "python3")
+(with-eval-after-load 'python
+  (defun python-shell-completion-native-try ()
+    "Return non-nil if can trigger native completion."
+    (let ((python-shell-completion-native-enable t)
+          (python-shell-completion-native-output-timeout
+           python-shell-completion-native-try-output-timeout))
+      (python-shell-completion-native-get-completions
+       (get-buffer-process (current-buffer))
+       nil "_"))))
+(use-package jedi
+:ensure t
+:init
+(add-hook 'python-mode-hook 'jedi:setup)
+(add-hook 'python-mode-hook 'jedi:ac-setup))
+
+(use-package elpy
+  :ensure t
+  :config
+  (elpy-enable))
+#+END_SRC
