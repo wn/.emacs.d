@@ -117,6 +117,8 @@ is already narrowed."
 
 * Themes
   #+BEGIN_SRC emacs-lisp :tangle yes
+(use-package overcast-theme
+  :ensure t)
 (require 'overcast-theme)
 (load-theme 'overcast t)
   #+END_SRC
@@ -146,13 +148,14 @@ is already narrowed."
 :ensure t
 :init
 (progn
-(global-set-key [remap other-window] 'ace-window)
-(custom-set-faces
-'(aw-leading-char-face
-((t (:inherit ace-jump-face-foreground :height 3.0)))))
-))
+(setq aw-scope 'global) ;; was frame
+(global-set-key (kbd "C-x O") 'other-frame)
+  (global-set-key [remap other-window] 'ace-window)
+  (custom-set-faces
+   '(aw-leading-char-face
+     ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
+  ))
   #+END_SRC
-
 * Swiper
   #+BEGIN_SRC emacs-lisp :tangle yes
 ;; it looks like counsel is a requirement for swiper
