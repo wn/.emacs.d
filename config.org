@@ -29,7 +29,7 @@
   #+BEGIN_SRC emacs-lisp :tangle yes 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (defalias 'list-buffers 'ibuffer)
-#+END_SRC
+#+END_SCR
 * Coding enhancement
   #+BEGIN_SRC emacs-lisp :tangle yes 
 (show-paren-mode 1)
@@ -136,12 +136,27 @@ is already narrowed."
 
 * Org mode config
   #+BEGIN_SRC emacs-lisp :tangle yes 
+(use-package org 
+      :ensure t
+      :pin org)
+
+ (setenv "BROWSER" "chrome")
 (use-package org-bullets
   :ensure t
   :config
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-  #+END_SRC
 
+(custom-set-variables
+  '(org-directory "~/Dropbox/orgfiles/")
+  '(org-default-notes-file (concat org-directory "notes.org"))
+  '(org-export-html-postamble nil)
+  '(org-hide-leading-stars t)
+  '(org-startup-folded (quote overview))
+  '(org-startup-indented t)
+  '(org-confirm-babel-evaluate nil)
+  '(org-src-fontify-natively t)
+  )
+#+END_SRC
 * Windows
   #+BEGIN_SRC emacs-lisp :tangle yes 
   (global-set-key [C-tab] 'next-buffer)
@@ -265,3 +280,4 @@ is already narrowed."
   :config
   (elpy-enable))
 #+END_SRC
+
