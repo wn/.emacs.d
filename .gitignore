@@ -4,4 +4,4 @@
 !plugins/*
 !config.org
 !init.el
-!snippets/*
+!snippets
