@@ -126,6 +126,7 @@ is already narrowed."
 (load-theme 'overcast t)
   #+END_SRC
 * MacOS
+#+BEGIN_SRC emacs-lisp :tangle yes
 (use-package exec-path-from-shell
   :ensure t
   :if (memq window-system '(mac ns x))
@@ -140,7 +141,7 @@ is already narrowed."
       :ensure t
       :pin org)
 
- (setenv "BROWSER" "chrome")
+ (setenv "BROWSER" "chromium-browser")
 (use-package org-bullets
   :ensure t
   :config
