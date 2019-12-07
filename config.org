@@ -23,7 +23,6 @@ This is my emacs config. Do open an issue if you see any bugs or rooms for impro
 (global-set-key (kbd "S-k") 'kill-buffer-and-window)
 (global-set-key (kbd "C-0") 'delete-window)
 
-
 (setq save-interprogram-paste-before-kill t)
 
 ;; Bindings to open special files/folders
@@ -31,6 +30,8 @@ This is my emacs config. Do open an issue if you see any bugs or rooms for impro
   (lambda () (interactive) (find-file "~/.emacs.d/config.org")))
 (global-set-key (kbd "\e\ed")
   (lambda () (interactive) (find-file "~/Developer")))
+(global-set-key (kbd "\e\es")
+  (lambda () (interactive) (eshell)))
   #+END_SRC
 
   Remap aliases
@@ -75,6 +76,10 @@ This is my emacs config. Do open an issue if you see any bugs or rooms for impro
 
 (use-package yasnippet-snippets
  :ensure t)
+
+(define-key yas-minor-mode-map (kbd "<tab>") nil)
+(define-key yas-minor-mode-map (kbd "TAB") nil)
+(define-key yas-minor-mode-map (kbd "<c-tab>") 'yas-expand)
     
 (use-package flycheck
   :ensure t
@@ -240,9 +245,9 @@ is already narrowed."
 (use-package counsel
   :ensure t
   :bind
-  (("C-y" . counsel-yank-pop)
+  (("M-y" . counsel-yank-pop)
     :map ivy-minibuffer-map
-    ("C-y" . ivy-next-line)))
+    ("M-y" . ivy-next-line)))
     
 (use-package ivy
   :ensure t
@@ -324,9 +329,8 @@ is already narrowed."
   :config
   (elpy-enable))
 #+END_SRC
-
 * Shell
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle yes
 (use-package powerline
   :ensure t
   :init
