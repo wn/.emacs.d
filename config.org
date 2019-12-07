@@ -140,6 +140,21 @@ is already narrowed."
 (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
 (ggtags-mode 1))))
 )
+  ;; projectile
+    (use-package projectile
+      :ensure t
+      :bind ("C-c p" . projectile-command-map)
+      :config
+      (projectile-global-mode)
+    (setq projectile-completion-system 'ivy))
+
+(use-package smartparens
+:ensure t
+  :hook (prog-mode . smartparens-mode)
+  :custom
+  (sp-escape-quotes-after-insert nil)
+  :config
+  (require 'smartparens-config))
   #+END_SRC
 * Themes
   #+BEGIN_SRC emacs-lisp :tangle yes
@@ -189,7 +204,7 @@ is already narrowed."
     :config
     (set-face-attribute
      'aw-leading-char-face nil
-     :foreground "deep sky blue"
+     :foreground "maroon"
      :weight 'bold
      :height 3.0)
     (set-face-attribute
@@ -314,6 +329,34 @@ is already narrowed."
   nil)
 
 (prepare-scratch-for-kill)
+
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(setq ibuffer-saved-filter-groups
+  (quote (("default"
+    ("dired" (mode . dired-mode))
+    ("org" (name . "^.*org$"))
+    ("web" (or (mode . web-mode) (mode . js2-mode)))
+    ("shell" (or (mode . eshell-mode) (mode . shell-mode)))
+    ("mu4e" (name . "\*mu4e\*"))
+    ("programming" (or
+    (mode . python-mode)
+    (mode . c++-mode)))
+    ("emacs" (or
+    (name . "^\\*scratch\\*$")
+    (name . "^\\*Messages\\*$")))
+    ))))
+(add-hook 'ibuffer-mode-hook
+  (lambda ()
+  (ibuffer-auto-mode 1)
+  (ibuffer-switch-to-saved-filter-groups "default")))
+
+;; don't show these
+;(add-to-list 'ibuffer-never-show-predicates "zowie")
+;; Don't show filter groups if there are no buffers in that group
+(setq ibuffer-show-empty-filter-groups nil)
+
+;; Don't ask for confirmation to delete marked buffers
+(setq ibuffer-expert t)
   #+END_SRC
 * Python
 #+BEGIN_SRC emacs-lisp :tangle yes
