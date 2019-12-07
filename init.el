@@ -1,3 +1,10 @@
+;;; init.el --- Initialization file for Emacs
+
+
+;;; Commentary:
+;; Emacs Startup File --- initialization for Emacs
+
+;;; Code:
 (setq inhibit-startup-message t)
 
 (require 'package)
@@ -14,3 +21,7 @@
   (package-install 'use-package))
 
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
+
+(provide 'init)
+
+;;; init.el ends here
