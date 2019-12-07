@@ -1,5 +1,6 @@
-#+TITLE: emacs config
-
+#+TITLE: Weineng's Emacs config
+* Overview
+This is my emacs config. Do open an issue if you see any bugs or rooms for improvements.
 * Preference
   STFU
   #+BEGIN_SRC emacs-lisp :tangle yes 
@@ -29,7 +30,7 @@
   #+BEGIN_SRC emacs-lisp :tangle yes 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (defalias 'list-buffers 'ibuffer)
-#+END_SCR
+  #+END_SRC
 * Coding enhancement
   #+BEGIN_SRC emacs-lisp :tangle yes 
 (show-paren-mode 1)
@@ -129,12 +130,10 @@ is already narrowed."
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package exec-path-from-shell
   :ensure t
-  :if (memq window-system '(mac ns x))
-  :config
-  (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
-  (exec-path-from-shell-initialize))
+  :init
+  (when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize)))
 #+END_SRC
-
 * Org mode config
   #+BEGIN_SRC emacs-lisp :tangle yes 
 (use-package org 
