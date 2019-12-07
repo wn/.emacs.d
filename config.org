@@ -130,6 +130,16 @@ is already narrowed."
           (lambda ()
             (define-key LaTeX-mode-map "\C-xn"
               nil)))
+
+;; tags for code navigation
+(use-package ggtags
+:ensure t
+:config
+(add-hook 'c-mode-common-hook
+(lambda ()
+(when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+(ggtags-mode 1))))
+)
   #+END_SRC
 * Themes
   #+BEGIN_SRC emacs-lisp :tangle yes
@@ -222,6 +232,8 @@ is already narrowed."
       (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
       (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
     (ace-window-display-mode t))
+
+(global-set-key (kbd "C-o") 'ace-window)
 
 ;; Go to the window after opening it.
 (defun split-and-follow-horizontally ()
