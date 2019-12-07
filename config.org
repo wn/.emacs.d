@@ -23,7 +23,14 @@ This is my emacs config. Do open an issue if you see any bugs or rooms for impro
 (global-set-key (kbd "S-k") 'kill-buffer-and-window)
 (global-set-key (kbd "C-0") 'delete-window)
 
+
 (setq save-interprogram-paste-before-kill t)
+
+;; Bindings to open special files/folders
+(global-set-key (kbd "\e\ec")
+  (lambda () (interactive) (find-file "~/.emacs.d/config.org")))
+(global-set-key (kbd "\e\ed")
+  (lambda () (interactive) (find-file "~/Developer")))
   #+END_SRC
 
   Remap aliases
@@ -136,45 +143,82 @@ is already narrowed."
 #+END_SRC
 * Org mode config
   #+BEGIN_SRC emacs-lisp :tangle yes 
-(use-package org 
+  (use-package org 
       :ensure t
       :pin org)
 
- (setenv "BROWSER" "chromium-browser")
-(use-package org-bullets
-  :ensure t
-  :config
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+  (setenv "BROWSER" "chromium-browser")
+  (use-package org-bullets
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-(custom-set-variables
-  '(org-directory "~/Dropbox/orgfiles/")
-  '(org-default-notes-file (concat org-directory "notes.org"))
-  '(org-export-html-postamble nil)
-  '(org-hide-leading-stars t)
-  '(org-startup-folded (quote overview))
-  '(org-startup-indented t)
-  '(org-confirm-babel-evaluate nil)
-  '(org-src-fontify-natively t)
-  )
+  (custom-set-variables
+    '(org-directory "~/Dropbox/orgfiles/")
+    '(org-default-notes-file (concat org-directory "notes.org"))
+    '(org-export-html-postamble nil)
+    '(org-hide-leading-stars t)
+    '(org-startup-folded (quote overview))
+    '(org-startup-indented t)
+    '(org-confirm-babel-evaluate nil)
+    '(org-src-fontify-natively t))
 #+END_SRC
 * Windows
   #+BEGIN_SRC emacs-lisp :tangle yes 
   (global-set-key [C-tab] 'next-buffer)
   (global-set-key [C-S-tab] 'previous-buffer)
 
-(use-package ace-window
-  :ensure t
-  :bind (("C-o" . ace-window))
-  :init
-  (progn
-  (setq aw-scope 'global) ;; was frame
-  (global-set-key (kbd "C-o") 'other-frame)
-  (global-set-key [remap other-window] 'ace-window)
-  (custom-set-faces
-   '(aw-leading-char-face
-     ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
-  ))
+  (use-package ace-window
+    :ensure t
+    :defer 1
+    :config
+    (set-face-attribute
+     'aw-leading-char-face nil
+     :foreground "deep sky blue"
+     :weight 'bold
+     :height 3.0)
+    (set-face-attribute
+     'aw-mode-line-face nil
+     :inherit 'mode-line-buffer-id
+     :foreground "lawn green")
+    (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l)
+          aw-dispatch-always t
+          aw-dispatch-alist
+          '((?x aw-delete-window "Ace - Delete Window")
+            (?c aw-swap-window "Ace - Swap Window")
+            (?n aw-flip-window)
+            (?v aw-split-window-vert "Ace - Split Vert Window")
+            (?h aw-split-window-horz "Ace - Split Horz Window")
+            (?m delete-other-windows "Ace - Maximize Window")
+            (?g delete-other-windows)
+            (?b balance-windows)
+            (?u (lambda ()
+                  (progn
+                    (winner-undo)
+                    (setq this-command 'winner-undo))))
+            (?r winner-redo)))
 
+    (when (package-installed-p 'hydra)
+      (defhydra hydra-window-size (:color red)
+        "Windows size"
+        ("h" shrink-window-horizontally "shrink horizontal")
+        ("j" shrink-window "shrink vertical")
+        ("k" enlarge-window "enlarge vertical")
+        ("l" enlarge-window-horizontally "enlarge horizontal"))
+      (defhydra hydra-window-frame (:color red)
+        "Frame"
+        ("f" make-frame "new frame")
+        ("x" delete-frame "delete frame"))
+      (defhydra hydra-window-scroll (:color red)
+        "Scroll other window"
+        ("n" joe-scroll-other-window "scroll")
+        ("p" joe-scroll-other-window-down "scroll down"))
+        (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
+      (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
+      (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
+    (ace-window-display-mode t))
+
+;; Go to the window after opening it.
 (defun split-and-follow-horizontally ()
   (interactive)
   (split-window-below)
@@ -281,3 +325,15 @@ is already narrowed."
   (elpy-enable))
 #+END_SRC
 
+* Shell
+#+BEGIN_SRC emacs-lisp
+(use-package powerline
+  :ensure t
+  :init
+  (powerline-default-theme))
+
+(use-package better-shell
+  :ensure t
+  :bind (("C-'" . better-shell-shell)
+  ("C-;" . better-shell-remote-open)))
+#+END_SRC
