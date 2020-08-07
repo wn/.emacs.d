@@ -66,10 +66,6 @@ This is my emacs config. Do open an issue if you see any bugs or rooms for impro
   :init
   (global-flycheck-mode t))
 
-(require 'neotree)
-(global-set-key (kbd "M-n") 'neotree-toggle)
-(setq all-the-icons (if (display-graphic-p) 'icons 'arrow))
-
 ;; expand the marked region in semantic increments (negative prefix to reduce region)
 (use-package expand-region
   :ensure t
@@ -143,11 +139,13 @@ is already narrowed."
 * Themes
   #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package all-the-icons)
-
-(use-package monokai-theme
-  :ensure t)
-(require 'monokai-theme)
-(load-theme 'monokai t)
+(use-package doom-modeline
+    :ensure t
+    :hook (after-init . doom-modeline-mode))
+(use-package dracula-theme
+    :ensure t
+    :config (setq dracula-enlarge-headings nil))
+(load-theme 'dracula t)
   #+END_SRC
 
 * MacOS
@@ -181,10 +179,7 @@ is already narrowed."
     '(org-src-fontify-natively t))
 #+END_SRC
 * Windows
-  #+BEGIN_SRC emacs-lisp :tangle yes 
-  (global-set-key [C-tab] 'next-buffer)
-  (global-set-key [C-S-tab] 'previous-buffer)
-
+  #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package ace-window
     :ensure t
     :defer 1
@@ -266,9 +261,9 @@ is already narrowed."
 (use-package ivy
   :ensure t
   :diminish (ivy-mode)
-  :bind (("C-x b" . ivy-switch-buffer))
   :config
   (ivy-mode 1)
+  (global-set-key (kbd "C-x C-b") 'ivy-switch-buffer)
   (setq ivy-use-virtual-buffers t)
   (setq ivy-count-format "%d/%d ")
   (setq ivy-display-style 'fancy))
@@ -329,7 +324,6 @@ is already narrowed."
 
 (prepare-scratch-for-kill)
 
-(global-set-key (kbd "C-x C-b") 'ibuffer)
 (setq ibuffer-saved-filter-groups
   (quote (("default"
     ("dired" (mode . dired-mode))
@@ -376,5 +370,5 @@ is already narrowed."
 (use-package better-shell
   :ensure t
   :bind (("C-'" . better-shell-shell)
-  ("C-;" . better-shell-remote-open)))
+  ("C-\"" . better-shell-remote-open)))
 #+END_SRC
