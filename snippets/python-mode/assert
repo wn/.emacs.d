@@ -3,4 +3,4 @@
 # key: ass
 # group: testing
 # --
-assert $0
+assert($0)
